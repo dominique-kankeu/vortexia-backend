@@ -1,7 +1,12 @@
 from fastapi import FastAPI
+from routers import system, health
 
-app = FastAPI()
+app = FastAPI(
+    title="Vortexia AI Backend",
+    version="1.0.0",
+    description="Backend officiel de Vortexia AI - Architecture Haute Performance"
+)
 
-@app.get("/")
-def read_root():
-    return {"message": "Vortexia AI Backend is live!"}
+# Inclusion des routeurs modulaires
+app.include_router(system.router)
+app.include_router(health.router)

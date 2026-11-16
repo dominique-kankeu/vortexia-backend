@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from routers import system, health
+from routers import system, health, auth
 
 app = FastAPI(
     title="Vortexia AI Backend",
@@ -10,3 +10,4 @@ app = FastAPI(
 # Inclusion des routeurs modulaires
 app.include_router(system.router)
 app.include_router(health.router)
+app.include_router(auth.router)

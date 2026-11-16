@@ -1,13 +1,8 @@
 from fastapi import FastAPI
-from routers import system, health, auth
+from routers import auth, users  # <-- Importe le routeur users
 
-app = FastAPI(
-    title="Vortexia AI Backend",
-    version="1.0.0",
-    description="Backend officiel de Vortexia AI - Architecture Haute Performance"
-)
+app = FastAPI(title="Vortexia AI Backend")
 
-# Inclusion des routeurs modulaires
-app.include_router(system.router)
-app.include_router(health.router)
+# Enregistrement des routeurs
 app.include_router(auth.router)
+app.include_router(users.router)  # <-- Ajoute cette ligne si ce n'est pas déjà fait

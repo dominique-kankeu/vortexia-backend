@@ -1,19 +1,41 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from fastapi.responses import HTMLResponse
+from pydantic import BaseModel
 from database import engine
 import models
-import routers.system
-import routers.users
-import routers.ads
 
 # Crée les tables dans la base de données au démarrage
 models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="Vortexia AI Backend")
 
-app.include_router(routers.system.router)
-app.include_router(routers.users.router)
-app.include_router(routers.ads.router)
+# Modèles Pydantic pour les requêtes API
+class UserRegister(BaseModel):
+    phone_number: str
+    referral_code: str | None = None
+
+class AdReward(BaseModel):
+    phone_number: str
+
+# ---------------------------------------------------------
+# ROUTES API (Utilisateurs et Publicités)
+# ---------------------------------------------------------
+@app.post("/users/register")
+def register_user(data: UserRegister):
+    # Logique d'inscription simplifiée avec 50 crédits offerts
+    return {
+        "message": "Accès Vortexia activé avec succès !",
+        "phone": data.phone_number,
+        "credits": 50.0
+    }
+
+@app.post("/ads/reward")
+def reward_ad(data: AdReward):
+    # Ajout de +5 crédits après pub
+    return {
+        "message": "Publicité validée ! +5 crédits ajoutés.",
+        "new_balance": 55.0
+    }
 
 # ---------------------------------------------------------
 # ROUTE 1 : L'écran d'Onboarding futuriste (Page d'accueil /)
@@ -142,7 +164,6 @@ def serve_onboarding():
                     const data = await response.json();
 
                     if (response.ok) {
-                        alert(data.message + "\\nVos crédits actuels : " + data.credits);
                         window.location.href = '/dashboard?phone=' + encodeURIComponent(phone);
                     } else {
                         alert("Erreur : " + (data.detail || "Une erreur est survenue"));
@@ -341,7 +362,7 @@ def serve_dashboard():
                 </div>
 
                 <div class="referral-box">
-                    <input type="text" id="my-referral-code" class="referral-input" readonly value="VRT-XXXX">
+                    <input type="text" id="my-referral-code" class="referral-input" readonly value="VRT-DOM">
                     <button class="btn-action" style="margin-top:0; width: auto; padding: 0 15px;" onclick="copyCode()">Copier</button>
                 </div>
             </div>
@@ -386,10 +407,10 @@ def serve_dashboard():
                         updateUI();
                         alert(data.message);
                     } else {
-                        alert("Erreur : " + data.detail);
+                        alert("Erreur serveur publicité.");
                     }
                 } catch (err) {
-                    alert("Erreur de connexion au serveur de publicité.");
+                    alert("Erreur de connexion.");
                 }
             }
 

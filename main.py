@@ -15,7 +15,7 @@ app.include_router(routers.system.router)
 app.include_router(routers.users.router)
 app.include_router(routers.ads.router)
 
-# Route pour afficher l'écran d'Onboarding futuriste directement sur ton URL principale
+# Route 1 : L'écran d'Onboarding futuriste (Page d'accueil)
 @app.get("/", response_class=HTMLResponse)
 def serve_onboarding():
     return """
@@ -128,9 +128,7 @@ def serve_onboarding():
                 }
 
                 try {
-                    // Utilise l'URL relative (fonctionne directement sur ton domaine Render)
-                    const response = await window.location.origin + '/users/register';
-                    const apiResponse = await fetch('/users/register', {
+                    const response = await fetch('/users/register', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({
@@ -139,10 +137,12 @@ def serve_onboarding():
                         })
                     });
 
-                    const data = await apiResponse.json();
+                    const data = await response.json();
 
-                    if (apiResponse.ok) {
-                        alert(data.message + "\\nVos crédits actuels : " + data.credits + "\\nVotre code : " + (data.referral_code || 'N/A'));
+                    if (response.ok) {
+                        alert(data.message + "\\nVos crédits actuels : " + data.credits);
+                        // Redirection vers le Tableau de Bord en passant le téléphone
+                        window.location.href = '/dashboard?phone=' + encodeURIComponent(phone);
                     } else {
                         alert("Erreur : " + (data.detail || "Une erreur est survenue"));
                     }
@@ -151,6 +151,255 @@ def serve_onboarding():
                     alert("Impossible de joindre le serveur Vortexia.");
                 }
             }
+        </script>
+    </body>
+    </html>
+    """
+
+# Route 2 : Le Tableau de Bord & Gamification ultra-futuriste
+@app.get("/dashboard", response_class=HTMLResponse)
+def serve_dashboard():
+    return """
+    <!DOCTYPE html>
+    <html lang="fr">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Vortexia AI - Command Center</title>
+        <style>
+            * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', system-ui, sans-serif; }
+            body {
+                background-color: #050814;
+                background-image: radial-gradient(circle at 50% 10%, #111e38 0%, #050814 80%);
+                color: #ffffff;
+                min-height: 100vh;
+                padding: 20px;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+            }
+            .dashboard-container {
+                width: 100%;
+                max-width: 450px;
+                background: rgba(13, 22, 45, 0.75);
+                backdrop-filter: blur(25px);
+                border: 1px solid rgba(0, 242, 254, 0.2);
+                border-radius: 24px;
+                padding: 25px;
+                box-shadow: 0 0 50px rgba(0, 242, 254, 0.15);
+            }
+            .header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 25px;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+                padding-bottom: 15px;
+            }
+            .brand {
+                font-size: 20px;
+                font-weight: 800;
+                letter-spacing: 1.5px;
+                background: linear-gradient(135deg, #00f2fe 0%, #4facfe 100%);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                text-transform: uppercase;
+            }
+            .user-phone {
+                font-size: 12px;
+                color: #8fa3bf;
+                background: rgba(255, 255, 255, 0.05);
+                padding: 5px 10px;
+                border-radius: 20px;
+                border: 1px solid rgba(255, 255, 255, 0.1);
+            }
+            .card {
+                background: rgba(5, 8, 20, 0.6);
+                border: 1px solid rgba(0, 242, 254, 0.15);
+                border-radius: 16px;
+                padding: 20px;
+                margin-bottom: 20px;
+                text-align: center;
+                position: relative;
+                overflow: hidden;
+            }
+            .card::before {
+                content: '';
+                position: absolute;
+                top: 0; left: 0; width: 4px; height: 100%;
+                background: linear-gradient(to bottom, #00f2fe, #4facfe);
+            }
+            .credit-title {
+                font-size: 11px;
+                text-transform: uppercase;
+                letter-spacing: 1px;
+                color: #8fa3bf;
+                margin-bottom: 5px;
+            }
+            .credit-value {
+                font-size: 32px;
+                font-weight: 800;
+                color: #00f2fe;
+                text-shadow: 0 0 20px rgba(0, 242, 254, 0.4);
+            }
+            .section-title {
+                font-size: 13px;
+                font-weight: 700;
+                color: #ffffff;
+                margin-bottom: 12px;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+            .progress-bar-bg {
+                width: 100%;
+                height: 10px;
+                background: rgba(255, 255, 255, 0.08);
+                border-radius: 5px;
+                overflow: hidden;
+                margin: 10px 0;
+            }
+            .progress-bar-fill {
+                width: 0%;
+                height: 100%;
+                background: linear-gradient(90deg, #00f2fe, #00c6ff);
+                box-shadow: 0 0 10px #00f2fe;
+                transition: width 0.5s ease;
+            }
+            .referral-box {
+                display: flex;
+                gap: 10px;
+                margin-top: 10px;
+            }
+            .referral-input {
+                flex: 1;
+                background: rgba(5, 8, 20, 0.8);
+                border: 1px solid rgba(255, 255, 255, 0.1);
+                border-radius: 10px;
+                color: #00f2fe;
+                padding: 10px;
+                text-align: center;
+                font-weight: 700;
+                letter-spacing: 1px;
+            }
+            .btn-action {
+                width: 100%;
+                padding: 12px;
+                background: linear-gradient(135deg, #00f2fe 0%, #00c6ff 100%);
+                border: none;
+                border-radius: 12px;
+                color: #050814;
+                font-weight: 700;
+                font-size: 14px;
+                cursor: pointer;
+                text-transform: uppercase;
+                letter-spacing: 1px;
+                box-shadow: 0 4px 15px rgba(0, 242, 254, 0.3);
+                transition: all 0.3s ease;
+                margin-top: 10px;
+            }
+            .btn-action:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 6px 20px rgba(0, 242, 254, 0.5);
+            }
+            .info-text {
+                font-size: 11px;
+                color: #8fa3bf;
+                text-align: center;
+                margin-top: 8px;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="dashboard-container">
+            <div class="header">
+                <div class="brand">Vortexia AI</div>
+                <div id="user-phone-display" class="user-phone">Chargement...</div>
+            </div>
+
+            <!-- Solde de Crédits -->
+            <div class="card">
+                <div class="credit-title">Solde de Crédits Actuel</div>
+                <div id="credits-display" class="credit-value">--</div>
+            </div>
+
+            <!-- Système de Parrainage & Gamification -->
+            <div class="card" style="text-align: left;">
+                <div class="section-title">
+                    <span>Programme Viral</span>
+                    <span id="referral-count-text" style="color: #00f2fe;">0 / 5 amis</span>
+                </div>
+                <p class="info-text" style="text-align: left; margin-bottom: 8px;">Parraine 5 amis pour débloquer <strong>100 crédits bonus</strong> !</p>
+                
+                <div class="progress-bar-bg">
+                    <div id="progress-fill" class="progress-bar-fill" style="width: 0%;"></div>
+                </div>
+
+                <div class="referral-box">
+                    <input type="text" id="my-referral-code" class="referral-input" readonly value="...">
+                    <button class="btn-action" style="margin-top:0; width: auto; padding: 0 15px;" onclick="copyCode()">Copier</button>
+                </div>
+            </div>
+
+            <!-- Bouton Publicité (Rewarded Ads) -->
+            <button class="btn-action" onclick="watchAd()">📺 Regarder une pub (+5 Crédits)</button>
+        </div>
+
+        <script>
+            // Récupérer le numéro de téléphone depuis l'URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const userPhone = urlParams.get('phone');
+
+            if (userPhone) {
+                document.getElementById('user-phone-display').innerText = userPhone;
+                // Ici on pourrait charger les vraies données de l'utilisateur depuis l'API
+            }
+
+            let userCredits = 50.0;
+            let referralCount = 0;
+
+            function updateUI() {
+                document.getElementById('credits-display').innerText = userCredits.toFixed(1);
+                document.getElementById('referral-count-text').innerText = referralCount + " / 5 amis";
+                const percentage = (referralCount / 5) * 100;
+                document.getElementById('progress-fill').style.width = percentage + "%";
+            }
+
+            async function watchAd() {
+                if (!userPhone) {
+                    alert("Utilisateur non identifié.");
+                    return;
+                }
+                try {
+                    const response = await fetch('/ads/reward', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ phone_number: userPhone })
+                    });
+                    const data = await response.json();
+                    if (response.ok) {
+                        userCredits = data.new_balance;
+                        updateUI();
+                        alert(data.message);
+                    } else {
+                        alert("Erreur : " + data.detail);
+                    }
+                } catch (err) {
+                    alert("Erreur de connexion au serveur de publicité.");
+                }
+            }
+
+            function copyCode() {
+                const codeInput = document.getElementById('my-referral-code');
+                navigator.clipboard.writeText(codeInput.value);
+                alert("Code de parrainage copié !");
+            }
+
+            // Valeur initiale par défaut
+            document.getElementById('my-referral-code').value = "VRT-XXXX";
+            updateUI();
         </script>
     </body>
     </html>

@@ -187,13 +187,12 @@ def serve_ai_studio():
                     chat.appendChild(aMsg);
                     chat.scrollTop = chat.scrollHeight;
                     
-                    // Ouverture automatique immédiate de la fenêtre
                     openModal(text);
                 }, 500);
             }
 
             function openModal(promptText) {
-                document.getElementById('modal-prompt-text.innerText = "Prompt : \"" + promptText + "\"";
+                document.getElementById('modal-prompt-text').innerText = "Prompt : \\"" + promptText + "\\"";
                 document.getElementById('modal').style.display = 'flex';
             }
 

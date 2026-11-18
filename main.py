@@ -152,12 +152,10 @@ def serve_ai_studio():
                 <div class="credits-badge" onclick="goDashboard()">⚡ <span id="user-credits">50.0</span> Crédits</div>
             </div>
 
-            <!-- Zone d'échange avec l'IA -->
             <div id="chat-container" class="chat-box">
                 <div class="message ai">Système Vortexia initialisé. Prêt pour la génération visuelle. (-5 crédits/requête)</div>
             </div>
 
-            <!-- Formulaire de saisie -->
             <div class="input-area">
                 <input type="text" id="user-prompt" class="prompt-input" placeholder="Décris ta génération...">
                 <button class="btn-send" onclick="sendPrompt()">Envoyer</button>
@@ -190,11 +188,9 @@ def serve_ai_studio():
                     return;
                 }
 
-                // Déduction des crédits
                 currentCredits -= 5.0;
                 document.getElementById('user-credits').innerText = currentCredits.toFixed(1);
 
-                // Affichage du message utilisateur
                 const userMsg = document.createElement('div');
                 userMsg.className = 'message user';
                 userMsg.innerText = promptText;
@@ -203,11 +199,10 @@ def serve_ai_studio():
                 inputField.value = '';
                 chatContainer.scrollTop = chatContainer.scrollHeight;
 
-                // Simulation de la réponse de l'IA neuronale
                 setTimeout(() => {
                     const aiMsg = document.createElement('div');
                     aiMsg.className = 'message ai';
-                    aiMsg.innerText = "Synthèse neurale en cours pour : \"" + promptText + "\"\\n[Modèle cinématique activé - Rendu en file d'attente]";
+                    aiMsg.innerText = "Synthèse neurale en cours. Rendu en file d'attente.";
                     chatContainer.appendChild(aiMsg);
                     chatContainer.scrollTop = chatContainer.scrollHeight;
                 }, 800);

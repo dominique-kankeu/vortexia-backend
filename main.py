@@ -155,7 +155,7 @@ def serve_onboarding():
     """
 
 # ---------------------------------------------------------
-# ROUTE 2 : Tableau de Bord (/dashboard) - Avec mémoire locale
+# ROUTE 2 : Tableau de Bord (/dashboard) - Lien direct infaillible
 # ---------------------------------------------------------
 @app.get("/dashboard", response_class=HTMLResponse)
 def serve_dashboard():
@@ -224,6 +224,7 @@ def serve_dashboard():
             .credit-title { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: #8fa3bf; margin-bottom: 5px; }
             .credit-value { font-size: 32px; font-weight: 800; color: #00f2fe; text-shadow: 0 0 20px rgba(0, 242, 254, 0.4); }
             .btn-action {
+                display: block;
                 width: 100%;
                 padding: 14px;
                 background: linear-gradient(135deg, #00f2fe 0%, #00c6ff 100%);
@@ -233,6 +234,8 @@ def serve_dashboard():
                 font-weight: 700;
                 font-size: 14px;
                 cursor: pointer;
+                text-align: center;
+                text-decoration: none;
                 text-transform: uppercase;
                 letter-spacing: 1px;
                 box-shadow: 0 4px 15px rgba(0, 242, 254, 0.3);
@@ -250,8 +253,8 @@ def serve_dashboard():
                 <div class="credit-title">Solde de Crédits Actuel</div>
                 <div id="credits-display" class="credit-value">50.0</div>
             </div>
-            <button class="btn-action" onclick="watchAd()">📺 Regarder une pub (+5 Crédits)</button>
-            <button class="btn-action" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);" onclick="goToStudio()">🚀 Ouvrir le Studio AI</button>
+            <button class="btn-action" style="border:none;" onclick="watchAd()">📺 Regarder une pub (+5 Crédits)</button>
+            <a id="studio-btn" href="/ai" class="btn-action" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">🚀 Ouvrir le Studio AI</a>
         </div>
         <script>
             const urlParams = new URLSearchParams(window.location.search);
@@ -261,7 +264,10 @@ def serve_dashboard():
             } else {
                 userPhone = localStorage.getItem('vortexia_phone') || '';
             }
-            if (userPhone) { document.getElementById('user-phone-display').innerText = userPhone; }
+            if (userPhone) { 
+                document.getElementById('user-phone-display').innerText = userPhone;
+                document.getElementById('studio-btn').href = '/ai?phone=' + encodeURIComponent(userPhone);
+            }
             
             let userCredits = 50.0;
             function updateUI() { document.getElementById('credits-display').innerText = userCredits.toFixed(1); }
@@ -280,9 +286,6 @@ def serve_dashboard():
                         alert(data.message);
                     }
                 } catch (err) { alert("Erreur réseau."); }
-            }
-            function goToStudio() { 
-                window.location.href = '/ai?phone=' + encodeURIComponent(userPhone); 
             }
             updateUI();
         </script>

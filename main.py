@@ -141,7 +141,7 @@ def serve_onboarding():
                     });
                     if (response.ok) {
                         localStorage.setItem('vortexia_phone', phone);
-                        window.location.replace('/dashboard?phone=' + encodeURIComponent(phone));
+                        window.location.href = '/dashboard?phone=' + encodeURIComponent(phone);
                     } else {
                         alert("Erreur d'activation.");
                     }
@@ -235,6 +235,7 @@ def serve_dashboard():
                 font-size: 14px;
                 cursor: pointer;
                 text-align: center;
+                text-decoration: none;
                 text-transform: uppercase;
                 letter-spacing: 1px;
                 box-shadow: 0 4px 15px rgba(0, 242, 254, 0.3);
@@ -252,8 +253,8 @@ def serve_dashboard():
                 <div class="credit-title">Solde de Crédits Actuel</div>
                 <div id="credits-display" class="credit-value">50.0</div>
             </div>
-            <button class="btn-action" onclick="watchAd()">📺 Regarder une pub (+5 Crédits)</button>
-            <button class="btn-action" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);" onclick="goToStudio()">🚀 Ouvrir le Studio AI</button>
+            <button class="btn-action" style="border:none;" onclick="watchAd()">📺 Regarder une pub (+5 Crédits)</button>
+            <a id="studio-link" href="/ai" class="btn-action" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">🚀 Ouvrir le Studio AI</a>
         </div>
         <script>
             const urlParams = new URLSearchParams(window.location.search);
@@ -265,6 +266,7 @@ def serve_dashboard():
             }
             if (userPhone) { 
                 document.getElementById('user-phone-display').innerText = userPhone;
+                document.getElementById('studio-link').href = '/ai?phone=' + encodeURIComponent(userPhone);
             }
             
             let userCredits = 50.0;
@@ -285,11 +287,6 @@ def serve_dashboard():
                         alert(data.message);
                     }
                 } catch (err) { alert("Erreur réseau."); }
-            }
-
-            function goToStudio() {
-                const phone = userPhone || localStorage.getItem('vortexia_phone') || '';
-                window.location.href = '/ai?phone=' + encodeURIComponent(phone);
             }
 
             updateUI();
@@ -332,7 +329,7 @@ def serve_ai_studio():
         <div class="studio">
             <div class="header">
                 <span style="color:#00f2fe; font-weight:bold;">VORTEXIA STUDIO</span>
-                <span style="color:#00f2fe; font-size:12px; cursor:pointer;" onclick="goDashboard()">⚡ <span id="cred">45.0</span> Crédits</span>
+                <span style="color:#00f2fe; font-size:12px; cursor:pointer;" id="dash-link" onclick="goDashboard()">⚡ <span id="cred">45.0</span> Crédits</span>
             </div>
             <div id="chat" class="chat">
                 <div class="msg ai">Système prêt. Entrez votre description. (-5 crédits)</div>
@@ -341,7 +338,7 @@ def serve_ai_studio():
                 <input type="text" id="prompt" placeholder="Décrivez votre visuel...">
                 <button onclick="send()">Envoyer</button>
             </div>
-            <a href="#" style="text-align:center; font-size:11px; color:#00f2fe; margin-top:5px; text-decoration:none;" onclick="goDashboard()">← Tableau de bord</a>
+            <a href="#" style="text-align:center; font-size:11px; color:#00f2fe; margin-top:5px; text-decoration:none;" id="dash-link-bottom" onclick="goDashboard()">← Tableau de bord</a>
 
             <div id="modal">
                 <div class="modal-content">
@@ -375,7 +372,7 @@ def serve_ai_studio():
                 const uMsg = document.createElement('div');
                 uMsg.className = 'msg user';
                 uMsg.innerText = text;
-                chat.appendChild(uMsg);
+                chat.appendChild(uNav = uMsg);
                 input.value = '';
                 chat.scrollTop = chat.scrollHeight;
 

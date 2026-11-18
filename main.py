@@ -140,6 +140,7 @@ def serve_onboarding():
                         body: JSON.stringify({ phone_number: phone, referral_code: referral || null })
                     });
                     if (response.ok) {
+                        localStorage.setItem('vortexia_phone', phone);
                         window.location.href = '/dashboard?phone=' + encodeURIComponent(phone);
                     } else {
                         alert("Erreur d'activation.");
@@ -154,7 +155,7 @@ def serve_onboarding():
     """
 
 # ---------------------------------------------------------
-# ROUTE 2 : Tableau de Bord (/dashboard) - Complet et stylé
+# ROUTE 2 : Tableau de Bord (/dashboard) - Avec mémoire locale
 # ---------------------------------------------------------
 @app.get("/dashboard", response_class=HTMLResponse)
 def serve_dashboard():
@@ -254,8 +255,14 @@ def serve_dashboard():
         </div>
         <script>
             const urlParams = new URLSearchParams(window.location.search);
-            const userPhone = urlParams.get('phone');
+            let userPhone = urlParams.get('phone');
+            if (userPhone) {
+                localStorage.setItem('vortexia_phone', userPhone);
+            } else {
+                userPhone = localStorage.getItem('vortexia_phone') || '';
+            }
             if (userPhone) { document.getElementById('user-phone-display').innerText = userPhone; }
+            
             let userCredits = 50.0;
             function updateUI() { document.getElementById('credits-display').innerText = userCredits.toFixed(1); }
             async function watchAd() {
@@ -275,7 +282,7 @@ def serve_dashboard():
                 } catch (err) { alert("Erreur réseau."); }
             }
             function goToStudio() { 
-                window.location.href = '/ai?phone=' + encodeURIComponent(userPhone || ''); 
+                window.location.href = '/ai?phone=' + encodeURIComponent(userPhone); 
             }
             updateUI();
         </script>
@@ -284,7 +291,7 @@ def serve_dashboard():
     """
 
 # ---------------------------------------------------------
-# ROUTE 3 : Studio IA (/ai) - Avec pop-up modal de rendu
+# ROUTE 3 : Studio IA (/ai)
 # ---------------------------------------------------------
 @app.get("/ai", response_class=HTMLResponse)
 def serve_ai_studio():
@@ -340,11 +347,11 @@ def serve_ai_studio():
 
         <script>
             const urlParams = new URLSearchParams(window.location.search);
-            const userPhone = urlParams.get('phone');
+            const userPhone = urlParams.get('phone') || localStorage.getItem('vortexia_phone') || '';
             let credits = 45.0;
 
             function goDashboard() { 
-                window.location.href = '/dashboard?phone=' + encodeURIComponent(userPhone || ''); 
+                window.location.href = '/dashboard?phone=' + encodeURIComponent(userPhone); 
             }
 
             function send() {

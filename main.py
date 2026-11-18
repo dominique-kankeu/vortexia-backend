@@ -274,7 +274,9 @@ def serve_dashboard():
                     }
                 } catch (err) { alert("Erreur réseau."); }
             }
-            function goToStudio() { window.location.href = '/ai?phone=' + encodeURIComponent(userPhone || ''); }
+            function goToStudio() { 
+                window.location.href = '/ai?phone=' + encodeURIComponent(userPhone || ''); 
+            }
             updateUI();
         </script>
     </body>

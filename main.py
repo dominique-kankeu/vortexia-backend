@@ -141,7 +141,7 @@ def serve_onboarding():
                     });
                     if (response.ok) {
                         localStorage.setItem('vortexia_phone', phone);
-                        window.location.href = '/dashboard?phone=' + encodeURIComponent(phone);
+                        window.location.replace('/dashboard?phone=' + encodeURIComponent(phone));
                     } else {
                         alert("Erreur d'activation.");
                     }
@@ -155,7 +155,7 @@ def serve_onboarding():
     """
 
 # ---------------------------------------------------------
-# ROUTE 2 : Tableau de Bord (/dashboard) - Lien direct infaillible
+# ROUTE 2 : Tableau de Bord (/dashboard)
 # ---------------------------------------------------------
 @app.get("/dashboard", response_class=HTMLResponse)
 def serve_dashboard():
@@ -235,7 +235,6 @@ def serve_dashboard():
                 font-size: 14px;
                 cursor: pointer;
                 text-align: center;
-                text-decoration: none;
                 text-transform: uppercase;
                 letter-spacing: 1px;
                 box-shadow: 0 4px 15px rgba(0, 242, 254, 0.3);
@@ -253,8 +252,8 @@ def serve_dashboard():
                 <div class="credit-title">Solde de Crédits Actuel</div>
                 <div id="credits-display" class="credit-value">50.0</div>
             </div>
-            <button class="btn-action" style="border:none;" onclick="watchAd()">📺 Regarder une pub (+5 Crédits)</button>
-            <a id="studio-btn" href="/ai" class="btn-action" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">🚀 Ouvrir le Studio AI</a>
+            <button class="btn-action" onclick="watchAd()">📺 Regarder une pub (+5 Crédits)</button>
+            <button class="btn-action" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);" onclick="goToStudio()">🚀 Ouvrir le Studio AI</button>
         </div>
         <script>
             const urlParams = new URLSearchParams(window.location.search);
@@ -266,11 +265,11 @@ def serve_dashboard():
             }
             if (userPhone) { 
                 document.getElementById('user-phone-display').innerText = userPhone;
-                document.getElementById('studio-btn').href = '/ai?phone=' + encodeURIComponent(userPhone);
             }
             
             let userCredits = 50.0;
             function updateUI() { document.getElementById('credits-display').innerText = userCredits.toFixed(1); }
+            
             async function watchAd() {
                 if (!userPhone) { alert("Utilisateur non identifié."); return; }
                 try {
@@ -287,6 +286,12 @@ def serve_dashboard():
                     }
                 } catch (err) { alert("Erreur réseau."); }
             }
+
+            function goToStudio() {
+                const phone = userPhone || localStorage.getItem('vortexia_phone') || '';
+                window.location.href = '/ai?phone=' + encodeURIComponent(phone);
+            }
+
             updateUI();
         </script>
     </body>
